@@ -1,0 +1,55 @@
+#!/usr/bin/with-contenv bash
+export NO_AT_BRIDGE=0
+export GTK_MODULES=gail:atk-bridge
+export GNOME_ACCESSIBILITY=1
+export ACCESSIBILITY_ENABLED=1
+export DBUS_SESSION_BUS_ADDRESS="${DBUS_SESSION_BUS_ADDRESS:-unix:path=/tmp/runtime-abc/session-bus}"
+export LANG=fr_FR.UTF-8
+export LANGUAGE=fr_FR:fr
+
+mode="${WORKSPACE_BROWSER_MODE:-maximized}"
+url="${1:-}"
+user_data_dir="${WORKSPACE_CHROMIUM_USER_DATA_DIR:-/config/chromium}"
+
+mode_args=()
+case "${mode}" in
+  app)
+    if [ -n "${url}" ]; then
+      mode_args=(--app="${url}" --start-maximized)
+    else
+      mode_args=(--start-maximized)
+    fi
+    ;;
+  normal)
+    if [ -n "${url}" ]; then
+      mode_args=("${url}")
+    else
+      mode_args=()
+    fi
+    ;;
+  maximized|*)
+    if [ -n "${url}" ]; then
+      mode_args=(--start-maximized "${url}")
+    else
+      mode_args=(--start-maximized)
+    fi
+    ;;
+esac
+
+exec chromium \
+  --test-type \
+  --no-sandbox \
+  --disable-dev-shm-usage \
+  --disable-session-crashed-bubble \
+  --hide-crash-restore-bubble \
+  --disable-infobars \
+  --no-first-run \
+  --no-default-browser-check \
+  --lang=fr-FR \
+  --disable-features=Translate,TranslateUI \
+  --disable-extensions-except=/opt/agent-newtab-extension \
+  --load-extension=/opt/agent-newtab-extension \
+  --force-renderer-accessibility=complete \
+  --enable-features=AccessibilityObjectModel \
+  --user-data-dir="${user_data_dir}" \
+  "${mode_args[@]}"

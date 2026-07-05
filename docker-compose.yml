@@ -1,0 +1,44 @@
+services:
+  postgres:
+    image: ghcr.io/cloudnative-pg/postgresql:16
+    container_name: agent-browser-postgres
+    user: root
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: agent_browser_navigator
+      POSTGRES_USER: agent
+      POSTGRES_PASSWORD: agent_password
+      PGDATA: /var/lib/postgresql/data
+    command: >
+      bash -lc '
+        set -e;
+        export PATH=/usr/lib/postgresql/16/bin:$$PATH;
+        export PGDATA=/var/lib/postgresql/data;
+        mkdir -p "$$PGDATA";
+        chown -R postgres:postgres /var/lib/postgresql;
+        if [ ! -s "$$PGDATA/PG_VERSION" ]; then
+          printf "%s" "$$POSTGRES_PASSWORD" > /tmp/pgpass;
+          chown postgres:postgres /tmp/pgpass;
+          chmod 600 /tmp/pgpass;
+          runuser -u postgres -- initdb -D "$$PGDATA" --username="$$POSTGRES_USER" --pwfile=/tmp/pgpass --auth-host=scram-sha-256 --auth-local=trust;
+          echo "listen_addresses = '\''*'\''" >> "$$PGDATA/postgresql.conf";
+          echo "host all all all scram-sha-256" >> "$$PGDATA/pg_hba.conf";
+          runuser -u postgres -- pg_ctl -D "$$PGDATA" -w start;
+          runuser -u postgres -- createdb -U "$$POSTGRES_USER" "$$POSTGRES_DB";
+          runuser -u postgres -- pg_ctl -D "$$PGDATA" -m fast -w stop;
+          rm -f /tmp/pgpass;
+        fi;
+        exec runuser -u postgres -- postgres -D "$$PGDATA"
+      '
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U agent -d agent_browser_navigator"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  postgres_data:

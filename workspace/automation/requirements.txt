@@ -1,0 +1,3 @@
+# The MVP automation service uses Python stdlib plus Debian packages:
+# - python3-pyatspi
+# - xdotool

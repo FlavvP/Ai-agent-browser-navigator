@@ -1,0 +1,79 @@
+#!/usr/bin/with-contenv bash
+set -e
+mkdir -p /config/log
+mkdir -p /config/chromium /config/.cache /config/.config /config/.XDG /profiles/user/chromium /tmp/runtime-abc
+mkdir -p /config/.config/openbox
+if [ -f /etc/xdg/openbox/rc.xml ]; then
+  cp /etc/xdg/openbox/rc.xml /config/.config/openbox/rc.xml
+  python3 - <<'PY'
+import xml.etree.ElementTree as ET
+from pathlib import Path
+
+path = Path("/config/.config/openbox/rc.xml")
+tree = ET.parse(path)
+root = tree.getroot()
+ns_uri = root.tag.split("}")[0].strip("{") if root.tag.startswith("{") else ""
+ns = {"ob": ns_uri} if ns_uri else {}
+
+def tag(name):
+    return f"{{{ns_uri}}}{name}" if ns_uri else name
+
+for context in root.findall(".//ob:context", ns) if ns else root.findall(".//context"):
+    if context.attrib.get("name") not in {"Root", "Desktop"}:
+        continue
+    for mousebind in list(context.findall("ob:mousebind", ns) if ns else context.findall("mousebind")):
+        actions = mousebind.findall("ob:action", ns) if ns else mousebind.findall("action")
+        if any(action.attrib.get("name") == "ShowMenu" for action in actions):
+            context.remove(mousebind)
+
+tree.write(path, encoding="UTF-8", xml_declaration=True)
+PY
+fi
+: > /config/.config/openbox/autostart
+python3 - <<'PY'
+from pathlib import Path
+
+path = Path("/etc/speech-dispatcher/speechd.conf")
+if path.exists():
+    content = path.read_text(encoding="utf-8")
+    content = content.replace(
+        '#AddModule "espeak-ng"                "sd_espeak-ng" "espeak-ng.conf"',
+        'AddModule "espeak-ng"                "sd_espeak-ng" "espeak-ng.conf"',
+    )
+    content = content.replace("# DefaultModule espeak-ng", "DefaultModule espeak-ng")
+    content = content.replace('# DefaultLanguage "en-US"', 'DefaultLanguage "fr-FR"')
+    if 'LanguageDefaultModule "fr"  "espeak-ng"' not in content:
+        content = content.replace(
+            '#LanguageDefaultModule "en"  "espeak"',
+            '#LanguageDefaultModule "en"  "espeak"\nLanguageDefaultModule "fr"  "espeak-ng"',
+        )
+    path.write_text(content, encoding="utf-8")
+PY
+chown -R abc:abc /config/log /config/chromium /config/.cache /config/.config /config/.XDG /profiles/user /tmp/runtime-abc
+chmod 700 /tmp/runtime-abc
+rm -f /tmp/runtime-abc/session-bus
+runuser -u abc -- dbus-daemon --session --fork --address=unix:path=/tmp/runtime-abc/session-bus --print-address >/tmp/runtime-abc/dbus-address
+: > /config/log/agent-automation.log
+chown abc:abc /config/log/agent-automation.log
+nohup runuser -u abc -- env \
+  DISPLAY=:1 \
+  HOME="${WORKSPACE_CONVERSATION_PROFILE_PATH:-/config}" \
+  XDG_CONFIG_HOME="${WORKSPACE_CONVERSATION_PROFILE_PATH:-/config}/.config" \
+  XDG_CACHE_HOME="${WORKSPACE_CONVERSATION_PROFILE_PATH:-/config}/.cache" \
+  XDG_RUNTIME_DIR=/tmp/runtime-abc \
+  DBUS_SESSION_BUS_ADDRESS=unix:path=/tmp/runtime-abc/session-bus \
+  NO_AT_BRIDGE=0 \
+  GTK_MODULES=gail:atk-bridge \
+  GNOME_ACCESSIBILITY=1 \
+  ACCESSIBILITY_ENABLED=1 \
+  PATH=/command:/lsiopy/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin \
+  WORKSPACE_BROWSER_MODE="${WORKSPACE_BROWSER_MODE:-maximized}" \
+  WORKSPACE_BROWSER_WATCHDOG_ENABLED="${WORKSPACE_BROWSER_WATCHDOG_ENABLED:-true}" \
+  WORKSPACE_BROWSER_WATCHDOG_INTERVAL_MS="${WORKSPACE_BROWSER_WATCHDOG_INTERVAL_MS:-2000}" \
+  WORKSPACE_DEFAULT_URL="${WORKSPACE_DEFAULT_URL:-https://www.google.com}" \
+  WORKSPACE_USER_PROFILE_PATH="${WORKSPACE_USER_PROFILE_PATH:-/profiles/user}" \
+  WORKSPACE_CONVERSATION_PROFILE_PATH="${WORKSPACE_CONVERSATION_PROFILE_PATH:-/config}" \
+  WORKSPACE_CHROMIUM_USER_DATA_DIR="${WORKSPACE_CHROMIUM_USER_DATA_DIR:-${WORKSPACE_CONVERSATION_PROFILE_PATH:-/config}/chromium}" \
+  WORKSPACE_AUTOMATION_HOST="${WORKSPACE_AUTOMATION_HOST:-0.0.0.0}" \
+  WORKSPACE_AUTOMATION_PORT="${WORKSPACE_AUTOMATION_PORT:-8765}" \
+  python3 /opt/agent-automation/server.py >>/config/log/agent-automation.log 2>&1 &
