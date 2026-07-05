@@ -4,10 +4,12 @@ Agent Browser Navigator est une application web de chat IA dont l'objectif est d
 
 Pour cela, le projet ne s'appuie pas sur une simple API navigateur invisible. Il demarre un workspace Linux distant, affiche ce workspace dans l'interface web, lance Chromium dans cette machine, lit l'interface via l'accessibilite Linux, puis execute les clics, frappes clavier et scrolls via l'OS. Le but est d'obtenir un comportement plus naturel et plus proche d'une vraie session utilisateur qu'une automatisation DOM classique.
 
-Application web locale type ChatGPT avec deux modes :
+Le workspace est une interface partagee entre l'humain et l'agent IA. Quand le mode workspace est active, l'utilisateur voit la meme machine, le meme navigateur et la meme session que l'agent. Il peut reprendre la main, cliquer, taper, se connecter, valider une action sensible ou resoudre une etape manuelle, puis laisser l'agent continuer sur exactement le meme etat.
+
+L'application propose deux modes :
 
 - chat classique avec historique persistant ;
-- workspace agentique Docker/Selkies en split-screen, prepare pour les futurs tools navigateur/terminal.
+- workspace agentique Docker/Selkies en split-screen, avec navigateur visible et actions automatisees via l'OS.
 
 ## Demarrage
 
@@ -87,7 +89,7 @@ LOG_COMPACT_SNAPSHOTS="true"
 
 ## Authentification
 
-Le MVP 3 utilise Auth.js / NextAuth avec deux modes :
+L'authentification utilise Auth.js / NextAuth avec deux modes :
 
 - Google OAuth avec `AUTH_GOOGLE_ID` et `AUTH_GOOGLE_SECRET`.
 - Email/password avec hash bcrypt cote serveur.
@@ -163,7 +165,7 @@ Le mode `maximized` conserve les onglets et la barre d'adresse. Les controles de
 
 Quand une conversation passe en mode workspace, l'interface replie automatiquement la sidebar des conversations pour laisser plus de largeur au stream.
 
-Chromium est uniformise autour de Google pour le MVP :
+Chromium est uniformise autour de Google :
 
 - `WORKSPACE_DEFAULT_URL` vaut `https://www.google.com` par defaut.
 - Le profil Chromium force le bouton home et la page de demarrage vers cette URL.
@@ -180,11 +182,11 @@ docker rm -f <container>
 docker volume ls --filter "name=workspace-profile"
 ```
 
-Limites MVP 5 : le stream local n'est pas encore securise par reverse proxy, il n'y a pas encore d'automatisation AT-SPI2, pas de terminal agentique, et l'image workspace peut devoir etre remplacee ou derivee selon le comportement exact de l'image Selkies retenue.
+Limites actuelles : le stream local n'est pas encore securise par reverse proxy, le terminal agentique n'est pas encore expose comme tool, et l'image workspace peut devoir etre adaptee selon le comportement exact de l'image Selkies retenue.
 
 ## Build Image Workspace
 
-Le MVP 6 utilise une image locale custom avec Chromium, AT-SPI2, `xdotool` et un service Python automation.
+Le workspace utilise une image locale custom avec Chromium, AT-SPI2, `xdotool` et un service Python automation.
 
 ```powershell
 docker build -t agent-browser-workspace:local ./workspace
@@ -285,7 +287,7 @@ Quand l'utilisateur active le workspace manuellement via ce bouton, le prochain 
 
 Si `start_workspace_browser` est appele avec une URL alors que le workspace est deja `RUNNING`, le backend ne retourne plus simplement "deja actif" : il appelle le service automation `/open_browser` du container existant pour ouvrir cette URL dans Chromium.
 
-Limites MVP 6 : l'automatisation depend de l'arbre AT-SPI2 expose par le navigateur et le site. Certaines pages virtualisees ou composants custom peuvent necessiter des ameliorations de snapshot/scroll plus tard.
+Limites actuelles : l'automatisation depend de l'arbre AT-SPI2 expose par le navigateur et le site. Certaines pages virtualisees ou composants custom peuvent necessiter des ameliorations de snapshot/scroll plus tard.
 
 `OPENAI_TOOL_RUN_TIMEOUT_MS` remplace l'ancienne limite fixe de nombre d'appels tools. Le workspace peut donc enchainer autant d'actions que necessaire tant que la duree totale de la reponse reste sous ce timeout. Cela evite les blocages rapides pendant une navigation tout en gardant une protection contre les boucles infinies.
 
@@ -404,7 +406,7 @@ Cette page est reservee au debug local. Elle cree ou reutilise une conversation 
 - Serper.dev pour la recherche web
 - Cheerio pour l'extraction de pages HTML
 - Docker + Selkies/WebRTC pour le workspace local
-- AT-SPI2 + xdotool pour l'automatisation workspace MVP 6
+- AT-SPI2 + xdotool pour l'automatisation workspace
 
 ## Scripts
 
@@ -427,4 +429,4 @@ docker compose up -d
 npm run db:migrate
 ```
 
-SQLite n'est plus utilise depuis le MVP 4.
+SQLite n'est plus utilise ; PostgreSQL est la base locale et cible.

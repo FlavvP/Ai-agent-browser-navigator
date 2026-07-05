@@ -1444,3 +1444,13 @@ Utilisateur active le workspace
 - Tests executes : verification `gh repo view` implicite via creation du repo; push a effectuer apres commit.
 - Probleme rencontre : aucun.
 - Etape suivante : committer le depot nettoye, renommer la branche principale en `main`, puis pousser vers `origin`.
+
+### 2026-07-05 - Nettoyage README Presentation Produit
+
+- Suppression des references aux etapes MVP dans `README.md` pour presenter le projet comme un produit coherent plutot qu'une roadmap interne.
+- Ajout d'une explication du workspace comme interface partagee : l'utilisateur humain et l'agent IA voient et manipulent la meme machine, le meme navigateur et la meme session.
+- Clarification de la description generale : chat classique d'un cote, workspace agentique Docker/Selkies de l'autre, avec actions navigateur automatisees via l'OS.
+- Fichiers modifies : `README.md` et `AGENTS.md`.
+- Tests executes : recherche `rg "MVP|Phase|Roadmap" README.md`, aucune occurrence restante.
+- Probleme rencontre : aucun.
+- Etape suivante : committer et pousser cette correction de documentation vers GitHub.
