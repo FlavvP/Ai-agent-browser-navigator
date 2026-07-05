@@ -1454,3 +1454,13 @@ Utilisateur active le workspace
 - Tests executes : recherche `rg "MVP|Phase|Roadmap" README.md`, aucune occurrence restante.
 - Probleme rencontre : aucun.
 - Etape suivante : committer et pousser cette correction de documentation vers GitHub.
+
+### 2026-07-05 - Correction Orthographe README
+
+- Relecture et reecriture du `README.md` en francais accentue et encodage UTF-8 propre.
+- Correction des accents manquants, de plusieurs formulations maladroites et des erreurs creees par une premiere passe automatique de remplacement.
+- Conservation du fond technique : demarrage, variables d'environnement, workspace Docker/Selkies, outils web, snapshots, logs et debug.
+- Fichiers modifies : `README.md` et `AGENTS.md`.
+- Tests executes : lecture du debut du README et recherches `rg` ciblees sur les formes sans accents et les erreurs de remplacement connues.
+- Probleme rencontre : le README avait temporairement un encodage invalide pour `apply_patch`; il a ete reecrit en UTF-8 via PowerShell.
+- Etape suivante : committer et pousser la correction documentaire.
