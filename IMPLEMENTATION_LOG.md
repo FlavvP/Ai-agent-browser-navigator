@@ -479,3 +479,11 @@ Historique des travaux et validations du projet. Les instructions durables sont 
 - Limite locale : le controle automatique a refuse la suppression de la sauvegarde temporaire des dependances. Les dossiers de sauvegarde sous `.next/` restent ignores par Git ; aucun contournement du refus n'a ete effectue.
 - Source de la conversion : https://pnpm.io/cli/import .
 - Etape suivante : review de la migration, puis fusion dans `dev` apres validation explicite selon le workflow ; aucun serveur de test laisse actif.
+
+### 2026-09-21 - Review Validee Et Integration Git
+
+- Validation : l'utilisateur a valide la migration pnpm et autorise explicitement les fusions dans `dev` puis `main`, ainsi que leur publication dans le cadre du workflow.
+- Fichier modifie : `IMPLEMENTATION_LOG.md` ; aucun changement applicatif supplementaire.
+- Decision : integrer avec des commits de merge explicites ; verifier l'etat fusionne dans le checkout principal avant publication, puis nettoyer le worktree et la branche temporaire sans suppression forcee.
+- Verifications prealables : `git fetch origin`, branches principale et de travail propres, absence de divergence distante. Les controles d'integration et leur resultat seront consignes apres execution.
+- Etape suivante : fusionner, verifier et publier les deux branches ; revenir sur `dev` pour la suite du developpement.
