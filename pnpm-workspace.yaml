@@ -1,0 +1,8 @@
+# Keep Prisma 5 generated client resolution consistent on Windows.
+nodeLinker: hoisted
+allowBuilds:
+  '@prisma/client': true
+  '@prisma/engines': true
+  prisma: true
+  sharp: true
+  unrs-resolver: true

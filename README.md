@@ -21,14 +21,18 @@ docker compose up -d
 
 Installer les dépendances et préparer la base :
 
+Node.js >= 20.19 et pnpm 11.15.1 sont requis. Avec Corepack disponible, executer `corepack enable` ; le champ `packageManager` fixe la version du projet.
+
 ```powershell
-npm install
-npm run db:migrate
-npm run db:generate
-npm run dev
+pnpm install --frozen-lockfile
+pnpm run db:migrate
+pnpm run db:generate
+pnpm run dev
 ```
 
 L'application est disponible sur `http://localhost:3000`.
+
+Le verrou de dependances est `pnpm-lock.yaml`. `pnpm-workspace.yaml` conserve une disposition `node_modules` plate pour la resolution du client Prisma 5 sous Windows et autorise explicitement les scripts des dependances necessaires. Le script `postinstall` genere le client Prisma ; `pnpm run db:generate` permet de le regenerer apres un changement de schema.
 
 ## Variables d'environnement
 
@@ -411,14 +415,14 @@ Cette page est réservée au debug local. Elle crée ou réutilise une conversat
 ## Scripts
 
 ```powershell
-npm run dev
-npm run build
-npm run lint
-npm run db:generate
-npm run db:migrate
-npm run db:deploy
-npm run db:reset
-npm run db:studio
+pnpm run dev
+pnpm run build
+pnpm run lint
+pnpm run db:generate
+pnpm run db:migrate
+pnpm run db:deploy
+pnpm run db:reset
+pnpm run db:studio
 ```
 
 ## Reset local
@@ -426,7 +430,7 @@ npm run db:studio
 ```powershell
 docker compose down -v
 docker compose up -d
-npm run db:migrate
+pnpm run db:migrate
 ```
 
 SQLite n'est plus utilisé ; PostgreSQL est la base locale et cible.
