@@ -467,3 +467,23 @@ Historique des travaux et validations du projet. Les instructions durables sont 
 - Verification : `git fetch origin`, inspection des branches et `git diff --check`.
 - Probleme : aucun ; les modifications documentaires preexistantes sont incluses dans le commit d'initialisation autorise.
 - Suite : publier `dev`, puis migrer le gestionnaire de paquets dans la branche de travail.
+
+### 2026-09-21 - Migration Npm Vers Pnpm
+
+- Travail : `dev` initialisee et publiee sur `origin/dev` avec les instructions validees ; migration realisee dans `codex/pnpm-migration`, worktree voisin `Ai-agent-browser-navigator-worktrees/pnpm-migration`.
+- Fichiers : `package.json`, suppression de `package-lock.json`, creation de `pnpm-lock.yaml` et `pnpm-workspace.yaml`, `next.config.ts`, `README.md`, `AGENTS.md`, `docs/WORKTREE_WORKFLOW.md` et ce journal.
+- Decisions : pnpm 11.15.1 epingle, Node >=20.19, import du verrou npm via `pnpm import` ; versions de toutes les dependances directes conservees. Scripts de dependances autorises explicitement ; generation Prisma via `postinstall`. Commandes documentees migrees vers pnpm.
+- Compatibilite : `nodeLinker: hoisted` evite la resolution d'un client Prisma 5 vide dans la structure isolee sous Windows ; racines Turbopack et tracage Next.js fixees au dossier courant pour isoler chaque worktree des lockfiles parents.
+- Verifications finales : installation neuve `pnpm install --frozen-lockfile`, `pnpm run lint`, `pnpm exec tsc --noEmit`, `pnpm run build`, resolution runtime des modeles Prisma, comparaison des versions directes avec le verrou npm et `git diff --check`, reussis. Aucun changement de schema, migration DB ou deploiement effectue.
+- Problemes resolus : scripts de dependances initialement bloques par pnpm ; types Prisma absents en disposition isolee ; inference incorrecte de la racine Next.js depuis un verrou npm hors depot.
+- Limite locale : le controle automatique a refuse la suppression de la sauvegarde temporaire des dependances. Les dossiers de sauvegarde sous `.next/` restent ignores par Git ; aucun contournement du refus n'a ete effectue.
+- Source de la conversion : https://pnpm.io/cli/import .
+- Etape suivante : review de la migration, puis fusion dans `dev` apres validation explicite selon le workflow ; aucun serveur de test laisse actif.
+
+### 2026-09-21 - Review Validee Et Integration Git
+
+- Validation : l'utilisateur a valide la migration pnpm et autorise explicitement les fusions dans `dev` puis `main`, ainsi que leur publication dans le cadre du workflow.
+- Fichier modifie : `IMPLEMENTATION_LOG.md` ; aucun changement applicatif supplementaire.
+- Decision : integrer avec des commits de merge explicites ; verifier l'etat fusionne dans le checkout principal avant publication, puis nettoyer le worktree et la branche temporaire sans suppression forcee.
+- Verifications prealables : `git fetch origin`, branches principale et de travail propres, absence de divergence distante. Les controles d'integration et leur resultat seront consignes apres execution.
+- Etape suivante : fusionner, verifier et publier les deux branches ; revenir sur `dev` pour la suite du developpement.

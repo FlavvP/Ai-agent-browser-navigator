@@ -52,7 +52,7 @@ MVP 1 :
 - Prisma est verrouille en v5.22.0 pour eviter les changements de configuration Prisma 7.
 - La base locale PostgreSQL est lancee via Docker Compose.
 - OpenAI API officielle
-- npm
+- pnpm 11.15.1 (version fixee dans `packageManager`)
 
 Evolution SaaS :
 

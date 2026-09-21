@@ -60,28 +60,28 @@ Exemple :
 
 ```powershell
 git -C "..\Ai-agent-browser-navigator-worktrees\workspace-tools" status
-npm --prefix "..\Ai-agent-browser-navigator-worktrees\workspace-tools" run lint
+pnpm --dir "..\Ai-agent-browser-navigator-worktrees\workspace-tools" run lint
 ```
 
 L'agent doit installer les dependances dans le worktree si necessaire, lire les instructions du projet depuis ce worktree, puis limiter tous ses changements et commits a la branche du chat.
 
 ## Configuration Et Verifications Du Projet
 
-- Utiliser npm et le `package-lock.json` du worktree : `npm ci`.
+- Utiliser pnpm et le `pnpm-lock.yaml` du worktree : `pnpm install --frozen-lockfile`.
 - Preparer le `.env` local depuis `.env.example` ou la configuration locale autorisee, sans afficher ni committer de secrets. Les fichiers ignores ne sont pas copies automatiquement par Git dans un worktree.
 - Verifier PostgreSQL, la configuration Prisma et les dependances Docker necessaires aux parcours testes. Ne pas lancer de reset, migration destructive ou nettoyage de volumes sur les donnees partagees avec un autre chat. Utiliser une base de test distincte pour les changements de schema.
-- Executer les controles pertinents disponibles : `npm run lint`, `npx tsc --noEmit` et `npm run build`, ainsi que les tests cibles ou parcours manuels utiles. Aucun script `npm test` ou `npm run typecheck` n'est actuellement declare. Une modification purement documentaire peut etre verifiee par lecture, controle des liens et `git diff --check`.
+- Executer les controles pertinents disponibles : `pnpm run lint`, `pnpm exec tsc --noEmit` et `pnpm run build`, ainsi que les tests cibles ou parcours manuels utiles. Aucun script `pnpm test` ou `pnpm run typecheck` n'est actuellement declare. Une modification purement documentaire peut etre verifiee par lecture, controle des liens et `git diff --check`.
 - Consigner les travaux et validations dans `IMPLEMENTATION_LOG.md` depuis le worktree ; garder les instructions durables dans `AGENTS.md`.
 
 ## Serveurs De Developpement
 
-Lancer le serveur avec `npm run dev -- --port 0` pour demander un port disponible. La sortie Next.js fait foi et affiche l'URL exacte :
+Lancer le serveur avec `pnpm run dev --port 0` pour demander un port disponible. La sortie Next.js fait foi et affiche l'URL exacte :
 
 ```text
 - Local: http://localhost:<port>
 ```
 
-Ne jamais supposer que le port est `3000`. Recopier l'URL `Local` exacte dans le message de review. Si une integration exige une URL stable, choisir un port libre explicite avec `npm run dev -- --port <port>` et adapter la configuration locale d'authentification et les callbacks OAuth si necessaire.
+Ne jamais supposer que le port est `3000`. Recopier l'URL `Local` exacte dans le message de review. Si une integration exige une URL stable, choisir un port libre explicite avec `pnpm run dev --port <port>` et adapter la configuration locale d'authentification et les callbacks OAuth si necessaire.
 
 Ne pas lancer deux serveurs Next.js simultanement dans le meme worktree. Les verifications doivent viser le serveur du worktree courant, jamais celui d'une autre branche. Ne pas arreter les processus d'un autre chat.
 
@@ -101,11 +101,11 @@ Le message doit contenir au minimum la branche, le chemin absolu du worktree et 
 
 ```powershell
 cd "C:\chemin\absolu\Ai-agent-browser-navigator-worktrees\workspace-tools"
-npm ci
-npm run dev -- --port 0
+pnpm install --frozen-lockfile
+pnpm run dev --port 0
 ```
 
-Si le serveur est deja lance, le message doit aussi donner son URL `Local` exacte. Sinon, il doit preciser que `npm run dev -- --port 0` affichera le port attribue.
+Si le serveur est deja lance, le message doit aussi donner son URL `Local` exacte. Sinon, il doit preciser que `pnpm run dev --port 0` affichera le port attribue.
 
 Une review negative ne declenche aucune fusion ni aucun nettoyage. L'agent continue dans la meme branche et le meme worktree, corrige, teste, committe et soumet de nouveau le resultat.
 
