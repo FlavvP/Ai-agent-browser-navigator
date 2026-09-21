@@ -487,3 +487,12 @@ Historique des travaux et validations du projet. Les instructions durables sont 
 - Decision : integrer avec des commits de merge explicites ; verifier l'etat fusionne dans le checkout principal avant publication, puis nettoyer le worktree et la branche temporaire sans suppression forcee.
 - Verifications prealables : `git fetch origin`, branches principale et de travail propres, absence de divergence distante. Les controles d'integration et leur resultat seront consignes apres execution.
 - Etape suivante : fusionner, verifier et publier les deux branches ; revenir sur `dev` pour la suite du developpement.
+
+### 2026-09-21 - Verification De La Fusion Dans Dev
+
+- Travail : migration pnpm fusionnee dans `dev` par le commit `4b3f7ba` ; installation dans le checkout principal et validation de l'etat fusionne.
+- Fichier : `IMPLEMENTATION_LOG.md` pour ce compte rendu d'integration.
+- Verifications reussies : `pnpm install --frozen-lockfile`, lint et build incluant TypeScript. Lint/build executes avec `pnpm --config.verifyDepsBeforeRun=false run ...` apres installation pour eviter deux revalidations automatiques concurrentes. Aucun changement de configuration permanent ajoute.
+- Problemes resolus : serveur Next.js local arrete pour liberer le compilateur Windows ; executions pnpm concurrentes bloquees arretees puis controles relances sur les dependances installees.
+- Decision : publier `dev`, fusionner ensuite dans `main` comme demande explicitement, verifier que les arbres Git sont identiques avant publication ; aucun pipeline de deploiement configure dans le depot.
+- Suite : publication de `main`, suppression normale du worktree et de sa branche temporaire, retour sur `dev`.
