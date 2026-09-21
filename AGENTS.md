@@ -1464,3 +1464,14 @@ Utilisateur active le workspace
 - Tests executes : lecture du debut du README et recherches `rg` ciblees sur les formes sans accents et les erreurs de remplacement connues.
 - Probleme rencontre : le README avait temporairement un encodage invalide pour `apply_patch`; il a ete reecrit en UTF-8 via PowerShell.
 - Etape suivante : committer et pousser la correction documentaire.
+
+### 2026-09-21 - Verification Et Synchronisation GitHub
+
+- Verification du depot local : la branche `main` etait deja reliee a GitHub et synchronisee sans commit d'ecart.
+- Le depot canonique est `FlavvP/Ai-agent-browser-navigator`, actuellement public ; l'ancienne URL `IsFIVI/ai-agent-browser-navigator` redirigeait vers ce depot.
+- Mise a jour du remote local `origin` vers `https://github.com/FlavvP/Ai-agent-browser-navigator.git`, puis push de verification.
+- Verification des fichiers suivis et ignores : le code, les migrations Prisma, l'image workspace, `.env.example` et le lockfile sont versionnes ; `.env`, `node_modules`, `.next` et les logs restent exclus.
+- Aucun secret evident de type cle OpenAI, jeton GitHub ou cle privee n'a ete detecte dans les fichiers suivis.
+- Tests executes : `npm.cmd ci`, `npm.cmd run lint`, `npm.cmd run build` et `docker compose config --quiet`.
+- Probleme rencontre : PowerShell bloquait `npm.ps1`; les commandes ont ete relancees via `npm.cmd`. `npm ci` signale 15 vulnerabilites de dependances a auditer separement.
+- Etape suivante : cloner le depot sur l'autre appareil, copier `.env.example` vers `.env`, renseigner les secrets locaux, demarrer PostgreSQL et appliquer les migrations.
